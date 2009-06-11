@@ -85,8 +85,18 @@ var UnitTester = new Class({
 		return $('testFrame').contentWindow;
 	},
 	//load a scripts.json set
+	cleanDoubleSlash: function(str){
+		if (!str) return str;
+		var prefix = '';
+		if (str.test(/^http:\/\//)) {
+			prefix = "http://";
+			str = str.substring(7, str.length);
+		}
+		str = str.replace(/\/\//g, '/');
+		return prefix + str;
+	},
 	loadSource: function(source, suffix, target, sources){
-		this.request(sources[source]+suffix, function(result){
+		this.request(this.cleanDoubleSlash(sources[source]+suffix), function(result){
 			this.loadJson(source, result, target, sources);
 		}.bind(this));
 	},
@@ -145,7 +155,7 @@ var UnitTester = new Class({
 			var chunks = this.pathMap[script].split(':');
 			var dir = this.sources[chunks[0]] + '/Source/';
 			chunks.erase(chunks[0]);
-			return dir + chunks.join('/') + '.js';
+			return this.cleanDoubleSlash(dir + chunks.join('/') + '.js');
 		} catch(e){
 			return script;
 		}
@@ -194,8 +204,8 @@ var UnitTester = new Class({
 		this.loaders.push(function(){
 			if (scr.contains('dbug.js')) {
 				finish.delay(100, this);
-			} else	if (Browser.Engine.trident) {
-				win.$LoadScript(this.getPath(scr));
+			} else if (Browser.Engine.trident) {
+				win.$LoadScript(this.getPath(scr)+"?noCache="+new Date().getTime());
 				finish.delay(100, this);
 			} else {
 				try {
