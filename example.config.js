@@ -1,10 +1,10 @@
-UnitTester.site = 'YOUR SITE';
-UnitTester.title = 'TITLE OF THIS SUITE - LIKE "MY SITE TESTS"';
+UnitTester.site = 'Clientcide'; //title of your site
+UnitTester.title = 'Unit Test Demo'; //title of this test group
 
 window.addEvent('load', function(){
 	new UnitTester({
-		demo: 'PATH_TO_YOUR_SCRIPTS_DIRECTORY/' //contains Source/scripts.json
+		demo: 'DemoScripts/' //path to Source/scripts.json
 	}, {
-		DemoScripts: 'PATH_TO_YOUR_TESTS_DIRECTORY/' //contains tests.json
+		DemoScripts: 'DemoTests/' //path to tests.json
 	});
 });
