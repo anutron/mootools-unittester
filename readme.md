@@ -9,7 +9,7 @@ Aaron Newton (aaron [ at ] iminta &lt;dot&gt; com)
 
 This framework can be downloaded from github:
 
-[http://github.com/anutron/The-MooTools-Unit-Test-Framework](http://github.com/anutron/The-MooTools-Unit-Test-Framework)
+[http://github.com/anutron/mootools-unittester](http://github.com/anutron/mootools-unittester)
 
 Overview
 --------
