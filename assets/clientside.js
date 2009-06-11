@@ -3,7 +3,7 @@ Script: dbug.js
 	A wrapper for Firebug console.* statements.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 var dbug = {
 	logged: [],	
@@ -101,7 +101,7 @@ Script: IframeShim.js
 	Defines IframeShim, a class for obscuring select lists and flash objects in IE.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */	
 var IframeShim = new Class({
 	Implements: [Options, Events],
@@ -214,7 +214,7 @@ Script: Hash.Extras.js
 	Extends the Hash native object to include getFromPath which allows a path notation to child elements.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 
 Hash.implement({
@@ -242,7 +242,7 @@ Script: String.Extras.js
 	Extends the String native object to include methods useful in managing various kinds of strings (query strings, urls, html, etc).
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 String.implement({
 	stripTags: function() {
@@ -290,7 +290,7 @@ Script: Element.Measure.js
 	Extends the Element native object to include methods useful in measuring dimensions.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 
 Element.implement({
@@ -396,7 +396,7 @@ Script: Element.Pin.js
 	Extends the Element native object to include the pin method useful for fixed positioning for elements.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 
 window.addEvent('domready', function(){
@@ -407,7 +407,7 @@ window.addEvent('domready', function(){
 	}).inject(document.body);
 	var supported = (test.offsetTop === 0);
 	test.dispose();
-	Browser.set('supportsPositionFixed', supported);
+	Browser.supportsPositionFixed = supported;
 });
 
 Element.implement({
@@ -423,7 +423,7 @@ Element.implement({
 					top: (p.y - window.getScroll().y),
 					left: (p.x - window.getScroll().x)
 				};
-				if(Browser.get('supportsPositionFixed')) {
+				if(Browser.supportsPositionFixed) {
 					this.setStyle('position','fixed').setStyles(pos);
 				} else {
 					this.setStyles({
@@ -478,7 +478,7 @@ Script: Element.Position.js
 	Extends the Element native object to include methods useful positioning elements relative to others.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 
 Element.implement({
@@ -623,7 +623,7 @@ Script: Element.Shortcuts.js
 	Extends the Element native object to include some shortcut methods.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 
 Element.implement({
@@ -664,7 +664,7 @@ Script: Fx.Reveal.js
 	Defines Fx.Reveal, a class that shows and hides elements with a transition.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 Fx.Reveal = new Class({
 	Extends: Fx.Morph,
@@ -866,7 +866,7 @@ Script: StyleWriter.js
 Provides a simple method for injecting a css style element into the DOM if it's not already present.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 
 var StyleWriter = new Class({
@@ -888,7 +888,7 @@ Script: StickyWin.js
 Creates a div within the page with the specified contents at the location relative to the element you specify; basically an in-page popup maker.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 
 var StickyWin = new Class({
@@ -1057,7 +1057,7 @@ Script: StickyWin.ui.js
 Creates an html holder for in-page popups using a default style.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 
 StickyWin.ui = function(caption, body, options){
@@ -1151,7 +1151,7 @@ Script: Waiter.js
 Adds a semi-transparent overlay over a dom element with a spinnin ajax icon.
 
 License:
-	http://clientside.cnet.com/wiki/cnet-libraries#license
+	http://www.clientcide.com/wiki/cnet-libraries#license
 */
 var Waiter = new Class({
 	Implements: [Options, Events, Chain],
@@ -1210,8 +1210,8 @@ var Waiter = new Class({
 			else this.msg = $(this.options.msg);
 			this.msgContainer.adopt(this.msg);
 		}
-		if (this.options.img) this.waiterImg = $(this.options.img.id) || new Element('img').injectInside(this.waiterContainer);
-		this.waiterOverlay = $(this.options.layer.id) || new Element('div').injectInside(document.body).adopt(this.waiterContainer);
+		if (this.options.img) this.waiterImg = $(this.options.img.id) || new Element('img').inject(this.waiterContainer);
+		this.waiterOverlay = $(this.options.layer.id) || new Element('div').inject(document.body).adopt(this.waiterContainer);
 		this.waiterOverlay.set(this.options.layer);
 		try {
 			if (this.options.useIframeShim) this.shim = new IframeShim(this.waiterOverlay, this.options.iframeShimOptions);
