@@ -4,7 +4,7 @@ window.addEvent('domready', function(){
 	try {
 		if (!window.debug || !window.debug.path){
 			var debug = {
-				path: 'assets/moobugger/'
+				path: (window.path ? path : '') + 'assets/moobugger/'
 			}; 
 			var script = document.createElement('script'); 
 			script.id = 'debug-bookmarklet'; 
