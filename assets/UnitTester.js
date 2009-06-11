@@ -1,4 +1,3 @@
-setCNETAssetBaseHref(path+'assets/');
 /*
 Script: UnitTester.js
 
@@ -38,6 +37,15 @@ Script: UnitTester.js
 License:
 	MIT-style license.
 */
+
+var config = $merge({
+	site: 'Clientside',
+	title: 'Unit Test Framework',
+	path: '',
+	ready: $empty
+}, (window.UnitTester) ? (UnitTester) : {});
+
+setCNETAssetBaseHref((window.UnitTester ? UnitTester.path : '') +'assets/');
 
 
 var UnitTester = new Class({
@@ -314,7 +322,7 @@ var UnitTester = new Class({
 					this.removeEvents('scriptsLoaded');
 					this.exec(this.currentTest['scripts']);
 					dbug.log('test scripts loaded');
-					this.loadScr(path+'assets/fireDomReady.js');
+					this.loadScr(UnitTester.path+'assets/fireDomReady.js');
 					if (this.options.autoplay) this.runTest.delay(100, this, 0);
 				}.bind(this);
 				this.removeEvents('scriptsLoaded').addEvent('scriptsLoaded', dr);
@@ -587,5 +595,5 @@ var UnitTester = new Class({
 		}
 	}
 });
-UnitTester.site = 'Clientside';
-UnitTester.title = 'Unit Test Framework';
+$extend(UnitTester, config);
+window.addEvent('load', UnitTester.ready);
