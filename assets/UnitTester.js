@@ -293,11 +293,11 @@ var UnitTester = new Class({
 		var base = chunks[0];
 		var dir = chunks[1];
 		chunks.splice(chunks.indexOf(base), 1);
-		chunks.erase(dir);
+		if (chunks.contains(dir) >= 0) chunks.splice(chunks.indexOf(dir), 1);
 		var script = chunks[0];
 		var file = chunks.join('.');
 		var name = base+': '+dir+' &raquo; '+file;
-		var filePath = this.testScripts[base]+'/'+dir+'/'+file;
+		var filePath = this.cleanDoubleSlash(this.testScripts[base]+'/'+dir+'/'+file);
 		return {
 			filePath: filePath,
 			script: script,
@@ -311,7 +311,7 @@ var UnitTester = new Class({
 	loadTest: function(testPath){
 		console.log('load: ', testPath);
 		this.clearLoaders();
-		this.getFrame().location.href = this.getFrame().location.href;
+		this.getFrame().location.href = this.getFrame().location.href.split("#")[0];
 		$('testFrame').removeEvents('load');
 		$('testFrame').addEvent('load', function(){
 			testPath = testPath || $('testLoaderSel').get('value');
