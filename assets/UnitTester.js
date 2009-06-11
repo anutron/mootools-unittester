@@ -126,12 +126,13 @@ var UnitTester = new Class({
 	//calculate the dependencies for a given script
 	calculateDependencies: function(script){
 		var reqs = [];
+		if (script == "None") return reqs;
 		var deps = this.getDepsForScript(script);
 		if (!deps) {
 			dbug.log('dependencies not mapped: script: %o, map: %o, :deps: %o', script, this.pathMap, this.deps);
 		} else {
 			deps.each(function(scr){
-				if (scr == script) return;
+				if (scr == script || scr == "None") return;
 				if (!reqs.contains(scr)) reqs.combine(this.calculateDependencies(scr));
 				reqs.include(scr);
 			}, this);
@@ -157,7 +158,9 @@ var UnitTester = new Class({
 		scripts = scripts.filter(function(s){return !this.loadedScripts.contains(s)}, this);
 		this.loadedScripts.combine(scripts);
 		if (scripts.length) {
-			scripts.each(function(scr){
+			scripts.filter(function(scr){
+				return scr != "None"
+			}).each(function(scr){
 				this.loadScr(scr, target, win);
 			}.bind(this));
 		} else {
@@ -176,17 +179,19 @@ var UnitTester = new Class({
 	loadScr: function(scr, target, win){
 		var run = this.loaders.length == 0;
 		this.waiter.start();
-		this.loaders.push(function(){
-			win = win||this.getFrame();
-			target = target||win.document.getElementsByTagName('head')[0];
-			var finish = function() {
-				if (this.loaders[0]) {
+		win = win||this.getFrame();
+		target = target||win.document.getElementsByTagName('head')[0];
+		var finish = function() {
+			if (this.loaders[0]) {
+				try {
 					this.loaders[0].apply(this);
-				}	else {
-					this.waiter.stop();
-					this.fireEvent('scriptsLoaded');
-				}
-			};
+				} catch(e) {}
+			}	else {
+				this.waiter.stop();
+				this.fireEvent('scriptsLoaded');
+			}
+		};
+		this.loaders.push(function(){
 			if (scr.contains('dbug.js')) {
 				finish.delay(100, this);
 			} else	if (Browser.Engine.trident) {
@@ -194,13 +199,13 @@ var UnitTester = new Class({
 				finish.delay(100, this);
 			} else {
 				try {
-				var s = new Element('script', {
-					src: this.getPath(scr)+"?noCache="+new Date().getTime(),
-					'type': 'text/javascript',
-					events: {
-						load: finish.bind(this)
-					}
-				}).inject(target);
+					var s = new Element('script', {
+						src: this.getPath(scr)+"?noCache="+new Date().getTime(),
+						'type': 'text/javascript',
+						events: {
+							load: finish.bind(this)
+						}
+					}).inject(target);
 				} catch(e){
 				}
 			}
@@ -269,7 +274,8 @@ var UnitTester = new Class({
 		var chunks = testPath.split('/');
 		var base = chunks[0];
 		var dir = chunks[1];
-		chunks.erase(base).erase(dir);
+		chunks.splice(chunks.indexOf(base), 1);
+		chunks.erase(dir);
 		var script = chunks[0];
 		var file = chunks.join('.');
 		var name = base+': '+dir+' &raquo; '+file;
@@ -285,6 +291,7 @@ var UnitTester = new Class({
 	},
 	//loads a test given a path
 	loadTest: function(testPath){
+		console.log('load: ', testPath);
 		this.clearLoaders();
 		this.getFrame().location.href = this.getFrame().location.href;
 		$('testFrame').removeEvents('load');
@@ -298,7 +305,7 @@ var UnitTester = new Class({
 					this.exec(this.currentTest['scripts']);
 					dbug.log('test scripts loaded');
 					this.loadScr('assets/fireDomReady.js');
-					if (this.options.autoplay) this.runTest(0);
+					if (this.options.autoplay) this.runTest.delay(100, this, 0);
 				}.bind(this);
 				this.removeEvents('scriptsLoaded').addEvent('scriptsLoaded', dr);
 				if (this.testObjs.otherScripts) {
@@ -388,7 +395,7 @@ var UnitTester = new Class({
 			var tmpl = $('testTemplate').get('html');
 			this.testObjs.tests.each(function(test, i){
 				var html = tmpl.substitute(test);
-				var testEl = new Element('div').addClass('testBlock').set('html', html).injectInside($('tests'));
+				var testEl = new Element('div').addClass('testBlock').set('html', html).inject($('tests'));
 				this.testElements[i] = testEl;
 				var btn = testEl.getElement('button');
 				var code = testEl.getElement('textarea');
@@ -478,6 +485,7 @@ var UnitTester = new Class({
 		if (this.options.autoplay) this.loadNextTest(i);
 	},
 	loadNextTest: function(current){
+		var div, dt;
 		if (this.testElements[current+1]) {
 			//load the next test in the currently loaded set
 			this.runTest(current+1);
@@ -486,9 +494,15 @@ var UnitTester = new Class({
 			var dd = $E('dd.selected');
 			var next = dd.getNext('dd');
 			if (!next) {
-				var dt = dd.getParent().getNext('dt');
-				if (dt && dt.retrieve('testPath')) next = dt;
-				else if(dt) next = dt.getElement('dd');
+				dt = dd.getParent().getNext('dt');
+				if (dt && dt.retrieve('testPath')) {
+					next = dt;
+				}	else if(dt) {
+					div = dt.getNext();
+					if (div && div.get('tag') == 'div') {
+						next = div.getElement('dd');
+					}
+				}
 			}
 			if (next) {
 				new StickyWin({
@@ -498,6 +512,7 @@ var UnitTester = new Class({
 							{
 								text: 'Next Tests >>',
 								onClick: function(){
+									if (div) dt.fireEvent('click');
 									next.fireEvent('click');								
 								}
 							}
@@ -562,5 +577,5 @@ var UnitTester = new Class({
 		}
 	}
 });
-UnitTester.site = 'Clientcide';
+UnitTester.site = 'Clientside';
 UnitTester.title = 'Unit Test Framework';
