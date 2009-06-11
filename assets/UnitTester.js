@@ -1,4 +1,4 @@
-setCNETAssetBaseHref('assets/');
+setCNETAssetBaseHref(path+'assets/');
 /*
 Script: UnitTester.js
 
@@ -314,7 +314,7 @@ var UnitTester = new Class({
 					this.removeEvents('scriptsLoaded');
 					this.exec(this.currentTest['scripts']);
 					dbug.log('test scripts loaded');
-					this.loadScr('assets/fireDomReady.js');
+					this.loadScr(path+'assets/fireDomReady.js');
 					if (this.options.autoplay) this.runTest.delay(100, this, 0);
 				}.bind(this);
 				this.removeEvents('scriptsLoaded').addEvent('scriptsLoaded', dr);
