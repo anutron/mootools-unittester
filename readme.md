@@ -7,16 +7,16 @@ Aaron Newton (aaron [ at ] iminta &lt;dot&gt; com)
 
 ### Download
 
-This framework can be downloaded from Google's svn servers:
+This framework can be downloaded from github:
 
-[http://code.google.com/p/clientside-test-framework][]
+[http://github.com/anutron/The-MooTools-Unit-Test-Framework](http://github.com/anutron/The-MooTools-Unit-Test-Framework)
 
 Overview
 --------
 
 ### Purpose
 
-MooTools ships with a version of JSSpec ([http://jania.pe.kr/aw/moin.cgi/JSSpec][]) and a series of Specs tests. This test framework is excellent at verifying that code that immediately produces an output is working. It can test, for example, that 2+2 does equal 4.
+MooTools ships with a version of JSSpec ([http://jania.pe.kr/aw/moin.cgi/JSSpec](http://jania.pe.kr/aw/moin.cgi/JSSpec)) and a series of Specs tests. This test framework is excellent at verifying that code that immediately produces an output is working. It can test, for example, that 2+2 does equal 4.
 
 It is not, however, very good at evaluating any type of code that has a delay between the execution of a code block and the production of a result. This includes Ajax requests, animations and other transitions, or interfaces that require a user to interact with the test (such as Drag).
 
@@ -164,6 +164,3 @@ Local Testing
 -------------
 
 The framework is designed to work from the desktop or from a server, but it definitely works better from a server. Some browsers (FF3 in particular) won't allow you to request local files due to security settings. Safari will allow it and IE will prompt you to allow it. It is possible to work around this in FF3, but it's better to serve the tests from a server when possible.
-
-[http://jania.pe.kr/aw/moin.cgi/JSSpec]: http://jania.pe.kr/aw/moin.cgi/JSSpec
-[http://code.google.com/p/clientside-test-framework]: http://code.google.com/p/clientside-test-framework
