@@ -12,6 +12,9 @@ body {
 	background: #F3F1F1;
 	color: #41464D;
 }
+dl {
+	position: relative;
+}
 
 #title {
 	width: 100%;
@@ -106,6 +109,9 @@ body {
 #testLoader dd.selected, #testLoader dt.selected {
 	background-color: #fdfbd0;
 	color: #9b9828;
+}
+#tests .selected {
+	background-color: #fdfbd0 !important;
 }
 #testLoader .exception {
 	color: #B33F3F !important;
