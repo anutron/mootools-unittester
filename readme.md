@@ -138,11 +138,24 @@ In addition to the tests, the test author can define additional scripts that sho
 Configuration
 -------------
 
-The test framework must be configured for each environment in which it runs. All that is required is that the file *config.js* be altered for your environment. This amounts to initializing the *UnitTester* class with any options you choose to specify.
+The test framework must be configured for each environment in which it runs. It works best as a git submodule inside the directory where you want your tests to run, i.e.:
 
-	window.addEvent('load', function(){
-		new UnitTester(scripts, tests);
-	});
+* /Tests << your test direcotry
+* /Tests/UnitTester << your git submodule of this framework
+
+In addition to the submodule, you should copy index.html, test_frame.html, and the example config file into your test directory.
+
+This can be achieved by doing the following in your GITROOT:
+
+	git submodule add git://github.com/anutron/mootools-unittester.git Tests/UnitTester
+	cd Tests
+	cp UnitTester/index.html .
+	cp UnitTester/test_frame.html .
+	cp UnitTester/example.config config.js
+	
+The config file contains an example configuration that looks like this:
+
+
 	
 ### Arguments
 
