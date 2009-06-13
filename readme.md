@@ -151,12 +151,32 @@ This can be achieved by doing the following in your GITROOT:
 	cd Tests
 	cp UnitTester/index.html .
 	cp UnitTester/test_frame.html .
-	cp UnitTester/example.config config.js
+	cp UnitTester/config.js config.js
 	
 The config file contains an example configuration that looks like this:
 
+	var UnitTester = {
+		site: 'MooTools', //title of your site
+		title: 'Unit Test Demo', //title of this test group
+		path: '',
+		ready: function(){
+			new UnitTester(sources, {
+				demo: 'DemoScripts/' //path to Source/scripts.json
+			}, {
+				DemoScripts: 'DemoTests/' //path to tests.json
+			});
+		}
+	};
 
-	
+This file defines:
+
+* the title of your site,
+* the title of the test suite,
+* the path to the test suite (in our example, that would be "UnitTester/")
+* and a callback called "ready" that is fired when the framework is loaded
+
+The "ready" callback should instantiate a copy of UnitTester (as in the example), which has the following interface:
+
 ### Arguments
 
 1. sources - (*object*) a set of name/value pairs for the locations of scripts.json files for dependency mapping
@@ -164,14 +184,14 @@ The config file contains an example configuration that looks like this:
 
 ### Example
 
-	window.addEvent('load', function(){
+	ready: function(){
 		new UnitTester({
-			mootoolsCore: '../svn/Mootools/mootools-core',
-			mootoolsMore: '../svn/Mootools/mootools-more'
+			mootoolsCore: '../Mootools/mootools-core', //your copy of mootools core
+			mootoolsMore: '../Mootools/mootools-more' //your copy of mootools more
 		},{
-			defaultTests: './UserTests/'
+			defaultTests: 'UserTests/' //the location of your test.json file
 		});
-	});
+	}
 
 Local Testing
 -------------

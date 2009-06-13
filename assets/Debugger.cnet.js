@@ -4,12 +4,13 @@ window.addEvent('domready', function(){
 	try {
 		if (!window.debug || !window.debug.path){
 			var debug = {
-				path: (window.path ? path : '') + 'assets/moobugger/'
-			}; 
+				path: (window.UnitTester ? UnitTester.path : '') + 'assets/moobugger/'
+			};
 			var script = document.createElement('script'); 
 			script.id = 'debug-bookmarklet'; 
 			script.src = debug.path + 'debugger.js';
 			script.onload = function(){
+				Moo.Debugger.load();
 				if(typeof dbug == "undefined") return;
 				(function(){
 					dbug.firebug = true;
