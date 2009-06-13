@@ -231,7 +231,7 @@ window.$$ = window.$$ || function(tag){
 	return document.getElementsByTagName(tag);
 };
 
-if (!debug.path) debug.local = true;
+if (debug.path === null) debug.local = true;
 
 debug.path = debug.path || Moo.Debugger.getPath();
 
@@ -266,3 +266,8 @@ if (!window.console || !console.group){
 	if (!debug.local) Moo.Debugger.load();
 	else Moo.Element.addEvent(window, 'load', Moo.Debugger.load);
 }
+(function(){
+	if(typeof dbug == "undefined") return;
+	dbug.firebug = true;
+	dbug.enable();
+}).delay(400);

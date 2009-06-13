@@ -6,18 +6,10 @@ window.addEvent('domready', function(){
 			var debug = {
 				path: (window.UnitTester ? UnitTester.path : '') + 'assets/moobugger/'
 			};
-			var script = document.createElement('script'); 
-			script.id = 'debug-bookmarklet'; 
-			script.src = debug.path + 'debugger.js';
-			script.onload = function(){
-				Moo.Debugger.load();
-				if(typeof dbug == "undefined") return;
-				(function(){
-					dbug.firebug = true;
-					dbug.enable();
-				}).delay(400);
-			};
-			document.getElementsByTagName('head')[0].appendChild(script);
+			var script = new Element('script', {
+				id: 'debug-bookmarklet',
+				src: debug.path + 'debugger.js'
+			}).inject(document.head);
 		}
 	} catch(e){
 	}
