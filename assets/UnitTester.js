@@ -211,10 +211,15 @@ var UnitTester = new Class({
 		};
 		this.loaders.push(function(){
 			if (scr.contains('dbug.js')) {
-				finish.delay(100, this);
+				finish.delay(400, this);
 			} else if (Browser.Engine.trident) {
-				win.$LoadScript(this.getPath(scr)+"?noCache="+new Date().getTime());
-				finish.delay(100, this);
+				new Request({
+					url: this.getPath(scr) + "?noCache="+new Date().getTime(),
+					onComplete: function(js) {
+						win.$exec(js);
+						finish.delay(100, this);
+					}.bind(this)
+				}).send();
 			} else {
 				try {
 					var s = new Element('script', {
@@ -225,11 +230,12 @@ var UnitTester = new Class({
 						}
 					}).inject(target);
 				} catch(e){
+					dbug.log(e);
 				}
 			}
 			this.loaders.erase(this.loaders[0]);
 		});
-		if (run) this.loaders[0].delay(100, this);
+		if (run) this.loaders[0].delay(400, this);
 	},
 	//creates the left nav of all the tests
 	setupLoaderSelection: function(){
@@ -596,4 +602,4 @@ var UnitTester = new Class({
 	}
 });
 $extend(UnitTester, config);
-window.addEvent('load', UnitTester.ready);
+window.addEvent('load', UnitTester.ready.pass(UnitTester));
