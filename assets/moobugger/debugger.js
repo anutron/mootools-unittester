@@ -270,4 +270,5 @@ if (!window.console || !console.group){
 	if(typeof dbug == "undefined") return;
 	dbug.firebug = true;
 	dbug.enable();
+	if ($('debugger')) $('debugger').pin();
 }).delay(400);
