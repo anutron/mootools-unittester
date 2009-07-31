@@ -162,7 +162,7 @@ var UnitTester = new Class({
 		try {
 			var chunks = this.pathMap[script].split(':');
 			var dir = this.sources[chunks[0]] + '/Source/';
-			chunks.erase(chunks[0]);
+			chunks.shift();
 			return this.cleanDoubleSlash(dir + chunks.join('/') + '.js');
 		} catch(e){
 			return script;
