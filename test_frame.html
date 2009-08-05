@@ -11,16 +11,7 @@
 		//define $exec, which needs to work w/o any dependencies for the test framework
 		function $exec(text){
 			if (!text) return text;
-			if (window.execScript){
-				window.execScript(text);
-			} else {
-				var script = document.createElement('script');
-				script.setAttribute('type', 'text/javascript');
-				script.text = text;
-				document.getElementsByTagName('head')[0].appendChild(script);
-				document.getElementsByTagName('head')[0].removeChild(script);
-			}
-			return text;
+			return eval(text);
 		};
 		//loads a script into the document; no dependencies
 		var $LoadScript = function(scr, onload){
