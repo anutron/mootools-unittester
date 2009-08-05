@@ -8,6 +8,24 @@
 			before: function(){
 				simplePrompt(get("usersName"), "Enter your name (lower case):", "fred flintstone", false);
 			}
+		},
+		{
+			title: "Tests the .post format of tests (pass).",
+			description: "An automated test that should pass without user interaction.",
+			verify: "This should pass without you doing anything when it runs.",
+			post: function(){
+				dbug.log('returning true!');
+				return true;
+			}
+		},
+		{
+			title: "Tests the .post format of tests (fail).",
+			description: "An automated test that should fail without user interaction.",
+			verify: "This should fail without you doing anything when it runs.",
+			post: function(){
+				dbug.log('returning false!');
+				return false;
+			}
 		}
 	],
 	otherScripts: ["getElement"] //getElement isn't in our dependency chain, but I use it in the test itself
