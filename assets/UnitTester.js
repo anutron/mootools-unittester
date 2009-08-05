@@ -474,9 +474,12 @@ var UnitTester = new Class({
 			if (test.before) this.exec(test.before.toString(), true);
 			if (code) this.exec(code.get('value'));
 			if (test.post) {
-				if (!this.exec(test.post.toString(), true)) {
+				var result = this.exec(test.post.toString(), true);
+				if (!result) {
 					alert('The conditions for this test have failed.');
-					this.fail(testIndex);
+					return this.fail(testIndex);
+				} else {
+					return this.pass(testIndex);
 				}
 			}
 		} catch (e){
@@ -494,7 +497,7 @@ var UnitTester = new Class({
 	//executed when a test passes
 	//i = index of the successful test
 	pass: function(i){
-		this.testElements[i].addClass('passed').removeClass('failed').removeClass('selected');
+		this.testElements[i].removeClass('selected').addClass('passed').removeClass('failed');
 		this.testResults[i] = true;
 		this.testElements[i].getElement('dd').dissolve();
 		this.evaluateAll();
@@ -503,7 +506,7 @@ var UnitTester = new Class({
 	//executed when a test failes
 	//i = index of the failed test
 	fail: function(i){
-		this.testElements[i].removeClass('passed').addClass('failed').removeClass('selected');
+		this.testElements[i].removeClass('selected').removeClass('passed').addClass('failed');
 		this.testResults[i] = false;
 		this.evaluateAll();
 		if (this.options.autoplay) this.loadNextTest(i);
