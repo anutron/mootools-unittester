@@ -50,12 +50,12 @@ dl {
 }
 #testFrameContainer {
 	float: left;
-	width: 403px;
+	width: 490px;
 	margin-left: 10px;
 }
 #testFrame {
 	border: 1px solid black;
-	width: 400px;
+	width: 490px;
 	height: 450px;
 	margin-top: 5px;
 }
@@ -155,7 +155,7 @@ textarea {
 	height: 25px;
 }
 #testFrameContainer textarea {
-	width: 391px;
+	width: 481px;
 	height: 100px;
 }
 div.handle {
@@ -172,7 +172,7 @@ div.handle {
 	cursor: n-resize;
 }
 #testFrameContainer div.handle {
-	width: 402px;
+	width: 490px;
 }
 
 div.handle:hover {
