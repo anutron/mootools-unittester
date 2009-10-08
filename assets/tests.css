@@ -50,12 +50,14 @@ dl {
 }
 #testFrameContainer {
 	float: left;
-	width: 490px;
+	width: 490px !important;
+	width: 470px;
 	margin-left: 10px;
 }
 #testFrame {
 	border: 1px solid black;
-	width: 490px;
+	width: 490px !important;
+	width: 470px;
 	height: 450px;
 	margin-top: 5px;
 }
@@ -155,7 +157,8 @@ textarea {
 	height: 25px;
 }
 #testFrameContainer textarea {
-	width: 481px;
+	width: 481px !important;
+	width: 461px;
 	height: 100px;
 }
 div.handle {
@@ -172,7 +175,8 @@ div.handle {
 	cursor: n-resize;
 }
 #testFrameContainer div.handle {
-	width: 490px;
+	width: 490px !important;
+	width: 470px;
 }
 
 div.handle:hover {
