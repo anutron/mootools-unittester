@@ -16,6 +16,13 @@ var Request = new Class({
 	options: {
 		method: 'get',
 		includeScripts: true
+	},
+	/* redefine processScripts so that it doesn't attempt to read headers; this enables the tester to
+			run locally w/o a web server for browsers that allow it */
+	processScripts: function(text){
+		return text;
+		if (this.options.evalResponse) return $exec(text);
+		return text.stripScripts(this.options.evalScripts);
 	}
 
 });
