@@ -16,15 +16,6 @@ var Request = new Class({
 	options: {
 		method: 'get',
 		includeScripts: true
-	},
-
-/* redefine processScripts so that it doesn't attempt to read headers; this enables the tester to
-	 run locally w/o a web server for browsers that allow it */
-
-	processScripts: function(text){
-		return text;
-		if (this.options.evalResponse) return $exec(text);
-		return text.stripScripts(this.options.evalScripts);
 	}
 
 });
@@ -47,11 +38,12 @@ var config = $merge({
 
 setCNETAssetBaseHref((window.UnitTester ? UnitTester.path : '') +'assets/');
 
-
 var UnitTester = new Class({
 	Implements: [Events, Options],
 	options: {
-		autoplay: true
+		autoplay: true,
+		appendSource: true,
+		compatibilities: {}
 	},
 	testScripts: {
 		//include as many sources as you like
@@ -65,6 +57,7 @@ var UnitTester = new Class({
 		DemoScripts: 'DemoScripts/'
 	},
 	data: {},
+	compats: {},
 	initialize: function(sources, testScripts, options){
 		this.setOptions(options);
 		this.sources = sources || this.sources;
@@ -74,12 +67,12 @@ var UnitTester = new Class({
 		});
 		//when sources are loaded, inject the tree of tests into the nav
 		this.addEvent('onReady', function(target, sources) {
-			if (sources == this.sources) this.mapTree()
+			if (sources == this.sources) this.mapTree();
 			else this.setupLoaderSelection();
 		}.bind(this));
 		//load each test and source
 		$each(this.sources, function(v, k) {
-			this.loadSource(k, '/Source/scripts.json', this.data, this.sources);
+			this.loadSource(k, this.options.appendSource ? '/Source/scripts.json' : '', this.data, this.sources);
 		}, this);
 		$each(this.testScripts, function(v, k) {
 			this.loadSource(k, '/tests.json', this.tests, this.testScripts);
@@ -104,9 +97,22 @@ var UnitTester = new Class({
 		return prefix + str;
 	},
 	loadSource: function(source, suffix, target, sources){
+		var compat = this.options.compatibilities[source];
+		if (compat) this.loadCompat(source, compat, this.compats, this.sources);
 		this.request(this.cleanDoubleSlash(sources[source]+suffix), function(result){
 			this.loadJson(source, result, target, sources);
 		}.bind(this));
+	},
+	aliases: {},
+	loadCompat: function(source, compat, target, sources){
+		this.request(compat.scripts, function(result){
+			target[source] = JSON.decode(result);
+		});
+		if (compat.aliases) {
+			this.request(compat.aliases, function(result) {
+				$extend(this.aliases, JSON.decode(result));
+			}.bind(this));
+		}
 	},
 	//handle scripts.json decoding
 	loadJson: function(source, result, target, sources){
@@ -138,8 +144,12 @@ var UnitTester = new Class({
 		}, this);
 	},
 	//get the dependencies for a given script
+	getAlias: function(script){
+		if (this.aliases[script]) dbug.log('Using alias %s for %s', this.aliases[script], script);
+		return this.aliases[script] || script;
+	},
 	getDepsForScript: function(script){
-		return this.deps[this.pathMap[script]];
+		return this.deps[this.pathMap[this.getAlias(script)]];
 	},
 	//calculate the dependencies for a given script
 	calculateDependencies: function(script){
@@ -160,8 +170,11 @@ var UnitTester = new Class({
 	//get the path for a script
 	getPath: function(script){
 		try {
+			script = this.getAlias(script);
 			var chunks = this.pathMap[script].split(':');
-			var dir = this.sources[chunks[0]] + '/Source/';
+			if (!this.sources[chunks[0]]) return script;
+			var dir = this.sources[chunks[0]] + (this.options.appendSource ? '/Source/': '');
+			if (dir.match(/json$/)) dir = dir.replace('scripts.json', '');
 			chunks.shift();
 			return this.cleanDoubleSlash(dir + chunks.join('/') + '.js');
 		} catch(e){
@@ -173,17 +186,50 @@ var UnitTester = new Class({
 	//load the missing dependencies for a given script
 	loadDependencies: function(script, target, win){
 		var scripts = this.calculateDependencies(script).include(script);
-		scripts = scripts.filter(function(s){return !this.loadedScripts.contains(s)}, this);
+		scripts = scripts.filter(function(s){return !this.loadedScripts.contains(s);}, this);
 		this.loadedScripts.combine(scripts);
 		if (scripts.length) {
 			scripts.filter(function(scr){
-				return scr != "None"
+				return scr != "None";
 			}).each(function(scr){
 				this.loadScr(scr, target, win);
+				var compat = this.getCompatPath(scr);
+				if (compat) this.compatsToLoad.include(compat);
 			}.bind(this));
+			this.addEvent('loadCompats', function(){
+				this.loadCompats(target, win);
+				var caller = arguments.callee;
+				(function(){
+					this.removeEvent('loadCompats', caller);
+				}).delay(10, this);
+			});
 		} else {
+			this.fireEvent('loadCompats');
 			this.fireEvent('scriptsLoaded');
 		}
+	},
+	compatsToLoad: [],
+	loadCompats: function(target, win) {
+		this.compatsToLoad.each(function(compat){
+			this.loadScr(compat, target, win);
+		}, this);
+		this.compatsToLoad.empty();
+	},
+	getCompatPath: function(scr){
+		var path;
+		scr = this.getAlias(scr);
+		for (source in this.compats) {
+			var data = this.compats[source];
+			var url = this.options.compatibilities[source].scripts.replace('compat.json', '');
+			for (dir in data) {
+				var files = data[dir];
+				if (files.contains(scr)) {
+					path = url + dir + '/' + scr + '.js';
+					break;
+				}
+			}
+		}
+		return path;
 	},
 	//keep track of how many scripts we're loading at a given time so the user
 	//this just stacks up scripts so that they have a buffer of 100ms between loading
@@ -192,6 +238,7 @@ var UnitTester = new Class({
 	loaders: [],
 	clearLoaders: function(){
 		this.loaders.empty();
+		this.compatsToLoad.empty();
 	},
 	//loads a script; if there is a script loading, pushes it onto the stack
 	loadScr: function(scr, target, win){
@@ -206,7 +253,11 @@ var UnitTester = new Class({
 				} catch(e) {}
 			}	else {
 				this.waiter.stop();
-				this.fireEvent('scriptsLoaded');
+				if (this.compatsToLoad.length) {
+					this.fireEvent('loadCompats');
+				} else {
+					this.fireEvent('scriptsLoaded');
+				}
 			}
 		};
 		this.loaders.push(function(){
@@ -315,7 +366,6 @@ var UnitTester = new Class({
 	},
 	//loads a test given a path
 	loadTest: function(testPath){
-		console.log('load: ', testPath);
 		this.clearLoaders();
 		this.getFrame().location.href = this.getFrame().location.href.split("#")[0];
 		$('testFrame').removeEvents('load');
@@ -327,15 +377,15 @@ var UnitTester = new Class({
 				var dr = function(){
 					this.removeEvents('scriptsLoaded');
 					this.exec(this.currentTest['scripts']);
-					dbug.log('test scripts loaded');
 					this.loadScr(UnitTester.path+'assets/fireDomReady.js');
-					if (this.options.autoplay) this.runTest.delay(100, this, 0);
+					if (this.options.autoplay) this.runTest.delay(500, this, 0);
 				}.bind(this);
 				this.removeEvents('scriptsLoaded').addEvent('scriptsLoaded', dr);
 				if (this.testObjs.otherScripts) {
 					var head = this.getFrame().document.getElementsByTagName('head')[0];
 					this.testObjs.otherScripts.each(function(s){
-						this.loadDependencies(s, head, this.getFrame())
+						this.loadDependencies(s, head, this.getFrame());
+						this.loadCompats();
 					}, this);
 				} else {
 					dr();
@@ -359,7 +409,8 @@ var UnitTester = new Class({
 		}
 		var head = this.getFrame().document.getElementsByTagName('head')[0];
 		this.loadedScripts.empty();
-		this.loadDependencies(script, head, this.getFrame())
+		this.compatsToLoad.empty();
+		this.loadDependencies(script, head, this.getFrame());
 		
 		var body = this.getFrame().document.body;
 		body.innerHTML = '<h1>'+this.currentTest['name']+'</h1>';
@@ -442,8 +493,8 @@ var UnitTester = new Class({
 				if (!test.verify) {
 					ver.dispose();
 				} else {
-					ver.getElement('a.pass').addEvent('click', this.pass.bind(this, i))
-					ver.getElement('a.fail').addEvent('click', this.fail.bind(this, i))
+					ver.getElement('a.pass').addEvent('click', this.pass.bind(this, i));
+					ver.getElement('a.fail').addEvent('click', this.fail.bind(this, i));
 				}
 				btn.addEvent('click', function(){
 					this.runTest(i);
@@ -464,7 +515,7 @@ var UnitTester = new Class({
 	//starts a test
 	runTest: function(testIndex){
 		$E('iframe').contentWindow.dbug = dbug;
-		$E('iframe').contentWindow.dbug.enable(true)
+		$E('iframe').contentWindow.dbug.enable(true);
 		var container = this.testElements[testIndex];
 		var code = container.getElement('textarea');
 		var ver = container.getElement('div.verify');
@@ -588,12 +639,12 @@ var UnitTester = new Class({
 	//url - the url to get
 	//callback - executed on success/complete, passed the reponse text
 	request: function(url, callback) {
-		url = url+(url.test(/\?/)?"&":"?")+"nocache="+new Date().getTime()
+		url = url+(url.test(/\?/)?"&":"?")+"nocache="+new Date().getTime();
 		var req = new Request({
 			url: url,
 			onComplete: function(result){
 				if (result) {
-					callback(result);
+					callback(req.xhr.responseText);
 				}
 			}.bind(this)
 		}).send();
