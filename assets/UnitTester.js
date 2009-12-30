@@ -171,6 +171,7 @@ var UnitTester = new Class({
 	getPath: function(script){
 		try {
 			script = this.getAlias(script);
+			if (!this.pathMap[script]) return script;
 			var chunks = this.pathMap[script].split(':');
 			if (!this.sources[chunks[0]]) return script;
 			var dir = this.sources[chunks[0]] + (this.options.appendSource ? '/Source/': '');
@@ -211,7 +212,7 @@ var UnitTester = new Class({
 	compatsToLoad: [],
 	loadCompats: function(target, win) {
 		this.compatsToLoad.each(function(compat){
-			this.loadScr(compat, target, win);
+			this.loadScr(compat);
 		}, this);
 		this.compatsToLoad.empty();
 	},
@@ -262,7 +263,7 @@ var UnitTester = new Class({
 		};
 		this.loaders.push(function(){
 			if (scr.contains('dbug.js')) {
-				finish.delay(400, this);
+				finish.delay(100, this);
 			} else if (Browser.Engine.trident) {
 				new Request({
 					url: this.getPath(scr) + "?noCache="+new Date().getTime(),
@@ -286,7 +287,7 @@ var UnitTester = new Class({
 			}
 			this.loaders.erase(this.loaders[0]);
 		});
-		if (run) this.loaders[0].delay(400, this);
+		if (run) this.loaders[0].delay(100, this);
 	},
 	//creates the left nav of all the tests
 	setupLoaderSelection: function(){
@@ -378,7 +379,7 @@ var UnitTester = new Class({
 					this.removeEvents('scriptsLoaded');
 					this.exec(this.currentTest['scripts']);
 					this.loadScr(UnitTester.path+'assets/fireDomReady.js');
-					if (this.options.autoplay) this.runTest.delay(500, this, 0);
+					if (this.options.autoplay) this.runTest.delay(150, this, 0);
 				}.bind(this);
 				this.removeEvents('scriptsLoaded').addEvent('scriptsLoaded', dr);
 				if (this.testObjs.otherScripts) {
